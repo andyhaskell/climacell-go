@@ -18,13 +18,17 @@ type Weather struct {
 	// The temperature it feels like for this weather sample, based on wind
 	// chill and heat window.
 	FeelsLike *FloatValue `json:"feels_like,omitempty"`
+	// The temperature of the dew point for this weather sample.
+	DewPoint *FloatValue `json:"dewpoint,omitempty"`
+	// The percent relative humidity for this weather sample.
+	Humidity *FloatValue `json:"humidity,omitempty"`
 	// The wind speed for this weather sample.
 	WindSpeed *FloatValue `json:"wind_speed,omitempty"`
 	// The direction of the wind in degrees for this weather sample, where
 	// 0 degrees means the wind is going exactly north.
 	WindDirection *FloatValue `json:"wind_direction,omitempty"`
 	// The wind gust speed for this weather sample.
-	WindGustSpeed *FloatValue `json:"wind_gust_speed,omitempty"`
+	WindGust *FloatValue `json:"wind_gust,omitempty"`
 	// The surface barometric pressure for this weather sample.
 	BaroPressure *FloatValue `json:"baro_pressure,omitempty"`
 	// The amount of precipitation for this weather sample.

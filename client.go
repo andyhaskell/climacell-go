@@ -1,0 +1,152 @@
+package climacell
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"time"
+
+	"github.com/pkg/errors"
+)
+
+// Client is the client for sending HTTP requests to ClimaCell's HTTP
+// endpoints.
+type Client struct {
+	// the base URL to send requests to. In regular usage, this is
+	// https://api.climacell.co/v3, but in test coverage this can be set to
+	// the URL for a mock API server.
+	baseURL string
+
+	// the API key we are sending requests with
+	apiKey string
+
+	// net/http Client for contacting the ClimaCell API.
+	c *http.Client
+}
+
+func newDefaultHTTPClient() *http.Client { return &http.Client{Timeout: time.Minute} }
+
+// New takes in a ClimaCell API key and returns a client for the ClimaCell API.
+// Note that the default client uses an underlying net/http Client where
+// requests time out after a minute without a response. If you want to use a
+// different net/http Client, you can instead create your API client using
+// NewWithClient.
+// WARNING: DO NOT share your API key with anyone; if someone else gains access
+// to it, they can make requests to the API under your identity. Because of
+// this, it is ill-advised to have the key directly in your source code.
+func New(apiKey string) *Client { return NewWithClient(apiKey, newDefaultHTTPClient()) }
+
+// NewWithClient takes in a ClimaCell API key and a net/http Client and returns
+// a client for the ClimaCell API.
+// WARNING: DO NOT share your API key with anyone; if someone else gains access
+// to it, they can make requests to the API under your identity. Because of
+// this, it is ill-advised to have the key directly in your source code.
+func NewWithClient(apiKey string, c *http.Client) *Client {
+	return &Client{
+		baseURL: "https://api.climacell.co/v3/",
+		apiKey:  apiKey,
+		c:       c,
+	}
+}
+
+//
+// Weather endpoints
+//
+
+// Nowcast returns minute-by-minute weather predictions on successful requests
+// to the /weather/nowcast endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request nowcast data for up to 6 hours out.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) Nowcast(args ForecastArgs) ([]Weather, error) {
+	return c.getWeatherSamples("weather/nowcast", args)
+}
+
+// HourlyForecast returns an hourly forecast on successful requests to the
+// /weather/forecast/hourly endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request hourly forecast data up to 96 hours out.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) HourlyForecast(args ForecastArgs) ([]Weather, error) {
+	return c.getWeatherSamples("weather/forecast/hourly", args)
+}
+
+// [TODO] Define deserialization type for daily forecast data. Unlike nowcast
+// and hourly forecast data, daily forecast data formats fields like
+// temperature as highs and lows.
+
+func (c *Client) getWeatherSamples(endpt string, args ForecastArgs) ([]Weather, error) {
+	u, err := url.Parse(c.baseURL)
+	if err != nil {
+		return nil, errors.WithMessage(err, "parsing base URL")
+	}
+	u = u.ResolveReference(&url.URL{Path: endpt})
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, errors.WithMessage(err, "making HTTP request")
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("apikey", c.apiKey)
+	req.URL.RawQuery = args.QueryParams().Encode()
+
+	res, err := c.c.Do(req)
+	if err != nil {
+		return nil, errors.WithMessagef(
+			err, "sending weather data request to %s", endpt,
+		)
+	}
+	defer res.Body.Close()
+
+	switch res.StatusCode {
+	case 200:
+		var weatherSamples []Weather
+		if err := json.NewDecoder(res.Body).Decode(&weatherSamples); err != nil {
+			return nil, errors.WithMessage(err, "deserializing weather response data")
+		}
+		return weatherSamples, nil
+	case 400, 401, 403, 404, 500:
+		var errRes ErrorResponse
+		if err := json.NewDecoder(res.Body).Decode(&errRes); err != nil {
+			return nil, errors.WithMessage(err, "deserializing weather error response")
+		}
+
+		if res.StatusCode == 401 || res.StatusCode == 403 {
+			errRes.StatusCode = res.StatusCode
+		}
+		return nil, &errRes
+	default:
+		return nil, fmt.Errorf("unexpected HTTP response status code: %d", res.StatusCode)
+	}
+}
+
+// ErrorResponse returns errors for 400, 401, 403, and 500 errors.
+type ErrorResponse struct {
+	// StatusCode indicates the HTTP status for this errored API request.
+	// For 401 and 403 errors, this is not present in the actual API
+	// response's JSON, so this is filled in for us.
+	StatusCode int `json:"statusCode"`
+	// ErrorCode is the error code for this request. Not present on 401 and
+	// 403 errors.
+	ErrorCode string `json:"errorCode"`
+	// Message is a description of the error that took place.
+	Message string `json:"message"`
+}
+
+func (err *ErrorResponse) Error() string {
+	if err.ErrorCode == "" {
+		return fmt.Sprintf("%d API error: %s", err.StatusCode, err.Message)
+	}
+	return fmt.Sprintf("%d (%s) API error: %s", err.StatusCode, err.ErrorCode, err.Message)
+}

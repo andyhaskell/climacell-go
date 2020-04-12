@@ -1,8 +1,15 @@
 package climacell
 
 import (
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
+
+//
+// Weather struct and related values
+//
 
 // Weather contains the data for a single weather sample in a location, and is
 // returned from the ClimaCell API's /weather/* endpoints.
@@ -147,3 +154,103 @@ type TimeValue struct {
 // precipitaiton type don't change their deserialization without the version
 // number also being bumped up, it would be nice to have enums for these values
 // instead of using StringValues.
+
+//
+// Query parameters for weather data requests
+//
+
+// ForecastArgs is converted to query parameters for forecast endpoints.
+type ForecastArgs struct {
+	// Location, sets the location we are requesting weather data for,
+	// which is either a location ID ("location_id" query parameter) or
+	// latitude and longitude coordinates ("lat" and "lon" query
+	// parameters).
+	// A location is the one field that is required for forecast requests;
+	// if it is absent and therefore no location query params are filled,
+	// any request for forecast data will error with a 400.
+	Location Location
+	// Start, if nonzero, indicates the start of the time range we are
+	// requesting weather data for, filling in the "start_time" query
+	// parameter.
+	Start time.Time
+	// End, if nonzero, indicates the end of the time range we are
+	// requesting weather data for, filling in the "end_time" query
+	// parameter.
+	End time.Time
+	// Timestep, if nonzero, indicates the timestep in minutes for the
+	// weather samples we are requesting by filling the "timestep" query
+	// parameter. For example if timestep is 5 on the nowcast endpoint, we
+	// are requesting nowcast data for every five minutes.
+	// Only used on the /weather/historical/climacell and /weather/nowcast
+	// endpoints; on other endpoints if this is used, the request will
+	// error with a 400.
+	Timestep int
+	// UnitSystem indicates whether we are requesting weather data in SI or
+	// US units of measure, filling in the "unit_system" query parameter.
+	// The default is SI.
+	UnitSystem string
+	// Fields indicates which fields we want on the returned weather
+	// sample, such as "temp", "humidity", etx.
+	Fields []string
+}
+
+// QueryParams converts a ForecastArgs to query parameters to send on a request
+// for weather data.
+func (args ForecastArgs) QueryParams() url.Values {
+	q := make(url.Values)
+	if args.Location != nil {
+		for k, v := range args.Location.LocationQueryParams() {
+			q[k] = v
+		}
+	}
+
+	if !args.Start.IsZero() {
+		q.Add("start_time", args.Start.Format(time.RFC3339))
+	}
+	if !args.End.IsZero() {
+		q.Add("end_time", args.End.Format(time.RFC3339))
+	}
+	if args.Timestep > 0 {
+		q.Add("timestep", strconv.Itoa(args.Timestep))
+	}
+	if args.UnitSystem != "" {
+		q.Add("unit_system", args.UnitSystem)
+	}
+	if len(args.Fields) > 0 {
+		q.Add("fields", strings.Join(args.Fields, ","))
+	}
+	return q
+}
+
+// Location produces the query parameters needed for indicating which
+// location to request weather data for.
+type Location interface {
+	// LocationQueryParams returns the query parameters to be added to a
+	// request for the weather data for a location.
+	LocationQueryParams() url.Values
+}
+
+// LatLon produces location query params from a pair of latitude and longitude
+// coordinates.
+type LatLon struct {
+	// Latitude coordinate
+	Lat float64
+	// Longitude coordinate
+	Lon float64
+}
+
+// LocationQueryParams implements the Location interface.
+func (l LatLon) LocationQueryParams() url.Values {
+	return url.Values{
+		"lat": []string{strconv.FormatFloat(l.Lat, 'E', -1, 64)},
+		"lon": []string{strconv.FormatFloat(l.Lon, 'E', -1, 64)},
+	}
+}
+
+// LocationID produces location query params from a location ID.
+type LocationID string
+
+// LocationQueryParams implements the Location interface.
+func (l LocationID) LocationQueryParams() url.Values {
+	return url.Values{"location_id": []string{string(l)}}
+}

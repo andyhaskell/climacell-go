@@ -65,7 +65,11 @@ func NewWithClient(apiKey string, c *http.Client) *Client {
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
 func (c *Client) Nowcast(args ForecastArgs) ([]Weather, error) {
-	return c.getWeatherSamples("weather/nowcast", args)
+	var w []Weather
+	if err := c.getWeatherSamples("weather/nowcast", args, &w); err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 // HourlyForecast returns an hourly forecast on successful requests to the
@@ -79,23 +83,45 @@ func (c *Client) Nowcast(args ForecastArgs) ([]Weather, error) {
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
 func (c *Client) HourlyForecast(args ForecastArgs) ([]Weather, error) {
-	return c.getWeatherSamples("weather/forecast/hourly", args)
+	var w []Weather
+	if err := c.getWeatherSamples("weather/forecast/hourly", args, &w); err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
-// [TODO] Define deserialization type for daily forecast data. Unlike nowcast
-// and hourly forecast data, daily forecast data formats fields like
-// temperature as highs and lows.
+// DailyForecast returns an hourly forecast on successful requests to the
+// /weather/forecast/daily endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request hourly forecast data up to 15 days out.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) DailyForecast(loc Location, args ForecastArgs) ([]ForecastWeather, error) {
+	var f []ForecastWeather
+	if err := c.getWeatherSamples("weather/forecast/daily", args, &f); err != nil {
+		return nil, err
+	}
+	return f, nil
+}
 
-func (c *Client) getWeatherSamples(endpt string, args ForecastArgs) ([]Weather, error) {
+func (c *Client) getWeatherSamples(
+	endpt string,
+	args ForecastArgs,
+	expectedResponse interface{},
+) error {
 	u, err := url.Parse(c.baseURL)
 	if err != nil {
-		return nil, errors.WithMessage(err, "parsing base URL")
+		return errors.WithMessage(err, "parsing base URL")
 	}
 	u = u.ResolveReference(&url.URL{Path: endpt})
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
-		return nil, errors.WithMessage(err, "making HTTP request")
+		return errors.WithMessage(err, "making HTTP request")
 	}
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("apikey", c.apiKey)
@@ -103,9 +129,7 @@ func (c *Client) getWeatherSamples(endpt string, args ForecastArgs) ([]Weather, 
 
 	res, err := c.c.Do(req)
 	if err != nil {
-		return nil, errors.WithMessagef(
-			err, "sending weather data request to %s", endpt,
-		)
+		return errors.WithMessagef(err, "sending weather data request to %s", endpt)
 	}
 	defer res.Body.Close()
 
@@ -113,21 +137,21 @@ func (c *Client) getWeatherSamples(endpt string, args ForecastArgs) ([]Weather, 
 	case 200:
 		var weatherSamples []Weather
 		if err := json.NewDecoder(res.Body).Decode(&weatherSamples); err != nil {
-			return nil, errors.WithMessage(err, "deserializing weather response data")
+			return errors.WithMessage(err, "deserializing weather response data")
 		}
-		return weatherSamples, nil
+		return nil
 	case 400, 401, 403, 404, 500:
 		var errRes ErrorResponse
 		if err := json.NewDecoder(res.Body).Decode(&errRes); err != nil {
-			return nil, errors.WithMessage(err, "deserializing weather error response")
+			return errors.WithMessage(err, "deserializing weather error response")
 		}
 
 		if res.StatusCode == 401 || res.StatusCode == 403 {
 			errRes.StatusCode = res.StatusCode
 		}
-		return nil, &errRes
+		return &errRes
 	default:
-		return nil, fmt.Errorf("unexpected HTTP response status code: %d", res.StatusCode)
+		return fmt.Errorf("unexpected HTTP response status code: %d", res.StatusCode)
 	}
 }
 

@@ -26,7 +26,7 @@ type ForecastDay struct {
 	// The longitude coordinate for this weather sample.
 	Lon float64 `json:"lon"`
 	// The date when this weather sample is forecast for.
-	ObservationTime TimeValue `json:"observation_time"`
+	ObservationTime DateValue `json:"observation_time"`
 	// The temperature for this weather sample.
 	Temp *ForecastMinAndMax `json:"temp,omitempty"`
 	// The temperature it feels like for this weather sample, based on wind

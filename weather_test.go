@@ -61,9 +61,7 @@ func TestDeserializeWeatherWithAllFields(t *testing.T) {
 	assert.Equal(t, -181.250, w.Lon)
 	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
 	require.NoError(t, err)
-	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
-		assert.WithinDuration(t, expObservationTime, tm, time.Second)
-	}
+	assert.EqualValues(t, expObservationTime, w.ObservationTime.Value)
 
 	if temp, ok := w.Temp.GetValue(); assert.True(t, ok) {
 		assert.EqualValues(t, 10, temp)
@@ -190,9 +188,7 @@ func TestDeserializeWeatherWithAllFieldsAbsent(t *testing.T) {
 	assert.Equal(t, -181.250, w.Lon)
 	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
 	require.NoError(t, err)
-	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
-		assert.WithinDuration(t, expObservationTime, tm, time.Second)
-	}
+	assert.EqualValues(t, expObservationTime, w.ObservationTime.Value)
 
 	assert.Nil(t, w.Temp)
 	assert.Nil(t, w.FeelsLike)
@@ -282,9 +278,7 @@ func TestDeserializeWeatherWithAllFieldsNull(t *testing.T) {
 	assert.Equal(t, -181.250, w.Lon)
 	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
 	require.NoError(t, err)
-	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
-		assert.WithinDuration(t, expObservationTime, tm, time.Second)
-	}
+	assert.EqualValues(t, expObservationTime, w.ObservationTime.Value)
 
 	_, ok := w.Temp.GetValue()
 	assert.False(t, ok, "Temp was present")

@@ -1,6 +1,7 @@
 package climacell
 
 import (
+	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
@@ -36,7 +37,7 @@ type Weather struct {
 	// The longitude coordinate for this weather sample.
 	Lon float64 `json:"lon"`
 	// The time when this weather sample is from.
-	ObservationTime TimeValue `json:"observation_time"`
+	ObservationTime DateValue `json:"observation_time"`
 	// The temperature for this weather sample.
 	Temp *FloatValue `json:"temp,omitempty"`
 	// The temperature it feels like for this weather sample, based on wind
@@ -208,6 +209,56 @@ func (t *TimeValue) GetValue() (val time.Time, ok bool) {
 		return time.Time{}, false
 	}
 	return *t.Value, true
+}
+
+// DateValue is a timestsamp value that can be either in RFC3339 layout, or in
+// YYYY-MM-DD layout. Unlike TimeValue, its value should always be non-nil and
+// non-zero, as it is used as the timestamps for forecast data samples.
+type DateValue struct{ Value time.Time }
+
+// UnmarshalJSON deserializes a DateValue from JSON.
+func (d *DateValue) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var jsonDate jsonDateValue
+	if err := json.Unmarshal(b, &jsonDate); err != nil {
+		return err
+	}
+	*d = DateValue{Value: time.Time(jsonDate.Value)}
+	return nil
+}
+
+type jsonDateValue struct {
+	Value timeOrDate `json:"value"`
+}
+
+type timeOrDate time.Time
+
+// UnmarshalJSON deserializes a timeOrDate from JSON.
+func (t *timeOrDate) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var timeStr string
+	if err := json.Unmarshal(b, &timeStr); err != nil {
+		return err
+	}
+
+	// Try parsing as an RFC3339 timestamp
+	if tm, err := time.Parse(time.RFC3339, timeStr); err == nil {
+		*t = timeOrDate(tm)
+		return nil
+	}
+
+	// Try parsing as a date
+	tm, err := time.Parse("2006-01-02", timeStr)
+	if err == nil {
+		*t = timeOrDate(tm)
+	}
+	return err
 }
 
 //

@@ -209,10 +209,10 @@ func (t *TimeValue) GetValue() (val time.Time, ok bool) {
 // Weather forecast type
 //
 
-// ForecastWeather contains the predicted value for a single day in a
-// location's daily weather forecast (6AM-6AM timeframe), and is returned from
-// the ClimaCell API's /weather/forecast/daily endpoint.
-type ForecastWeather struct {
+// ForecastDay contains the predicted value for a single day in a location's
+// daily weather forecast (6AM-6AM timeframe), and is returned from the
+// ClimaCell API's /weather/forecast/daily endpoint.
+type ForecastDay struct {
 	// The latitude coordinate for this weather sample.
 	Lat float64 `json:"lat"`
 	// The longitude coordinate for this weather sample.
@@ -274,7 +274,7 @@ type ForecastJSONMinMax struct {
 	Max *FloatValue `json:"max"`
 }
 
-// FloatAtTimeValue is a field on a ForecastWeather returned from the ClimaCell
+// FloatAtTimeValue is a field on a ForecastDay returned from the ClimaCell
 // API, in which the data are composed of a timestamp and a FloatValue
 // representing a minimum or maximum on a forecast for a kind of information
 // on the weather, like temperature or precipitation intensity.

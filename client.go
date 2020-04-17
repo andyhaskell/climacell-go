@@ -135,8 +135,7 @@ func (c *Client) getWeatherSamples(
 
 	switch res.StatusCode {
 	case 200:
-		var weatherSamples []Weather
-		if err := json.NewDecoder(res.Body).Decode(&weatherSamples); err != nil {
+		if err := json.NewDecoder(res.Body).Decode(expectedResponse); err != nil {
 			return errors.WithMessage(err, "deserializing weather response data")
 		}
 		return nil

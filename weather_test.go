@@ -61,111 +61,111 @@ func TestDeserializeWeatherWithAllFields(t *testing.T) {
 	assert.Equal(t, -181.250, w.Lon)
 	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
 	require.NoError(t, err)
-	if assert.NotNil(t, w.ObservationTime) {
-		assert.WithinDuration(t, expObservationTime, w.ObservationTime.Value, time.Second)
+	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
+		assert.WithinDuration(t, expObservationTime, tm, time.Second)
 	}
 
-	if assert.NotNil(t, w.Temp) {
-		assert.EqualValues(t, w.Temp.Value, 10)
+	if temp, ok := w.Temp.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 10, temp)
 	}
-	if assert.NotNil(t, w.FeelsLike) {
-		assert.EqualValues(t, w.FeelsLike.Value, 10)
+	if feelsLike, ok := w.FeelsLike.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 10, feelsLike)
 	}
-	if assert.NotNil(t, w.DewPoint) {
-		assert.EqualValues(t, w.DewPoint.Value, -0.50)
+	if dewPoint, ok := w.DewPoint.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, -0.50, dewPoint)
 	}
-	if assert.NotNil(t, w.WindSpeed) {
-		assert.EqualValues(t, w.WindSpeed.Value, 5)
+	if windSpeed, ok := w.WindSpeed.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 5, windSpeed)
 	}
-	if assert.NotNil(t, w.WindGust) {
-		assert.EqualValues(t, w.WindGust.Value, 10)
+	if windGust, ok := w.WindGust.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 10, windGust)
 	}
-	if assert.NotNil(t, w.BaroPressure) {
-		assert.EqualValues(t, w.BaroPressure.Value, 20.71)
+	if baroPressure, ok := w.BaroPressure.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 20.71, baroPressure)
 	}
-	if assert.NotNil(t, w.Visibility) {
-		assert.EqualValues(t, w.Visibility.Value, 6.21371)
+	if visibility, ok := w.Visibility.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 6.21371, visibility)
 	}
-	if assert.NotNil(t, w.Humidity) {
-		assert.EqualValues(t, w.Humidity.Value, 20.71)
+	if humidity, ok := w.Humidity.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 20.71, humidity)
 	}
-	if assert.NotNil(t, w.WindDirection) {
-		assert.EqualValues(t, w.WindDirection.Value, 250.25)
+	if windDirection, ok := w.WindDirection.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 250.25, windDirection)
 	}
-	if assert.NotNil(t, w.Precipitation) {
-		assert.EqualValues(t, w.Precipitation.Value, 10)
+	if precipitation, ok := w.Precipitation.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 10, precipitation)
 	}
-	if assert.NotNil(t, w.PrecipitationType) {
-		assert.EqualValues(t, w.PrecipitationType.Value, "rain")
+	if precipitationType, ok := w.PrecipitationType.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "rain", precipitationType)
 	}
-	if assert.NotNil(t, w.CloudCover) {
-		assert.EqualValues(t, w.CloudCover.Value, 12.8)
+	if cloudCover, ok := w.CloudCover.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 12.8, cloudCover)
 	}
-	if assert.NotNil(t, w.CloudCeiling) {
-		assert.EqualValues(t, w.CloudCeiling.Value, 6000)
+	if cloudCeiling, ok := w.CloudCeiling.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 6000, cloudCeiling)
 	}
-	if assert.NotNil(t, w.CloudBase) {
-		assert.EqualValues(t, w.CloudBase.Value, 5000)
+	if cloudBase, ok := w.CloudBase.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 5000, cloudBase)
 	}
-	if assert.NotNil(t, w.SurfaceShortwaveRadiation) {
-		assert.EqualValues(t, w.SurfaceShortwaveRadiation.Value, 250.1123)
+	if ssw, ok := w.SurfaceShortwaveRadiation.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 250.1123, ssw)
 	}
-	if assert.NotNil(t, w.FireIndex) {
-		assert.EqualValues(t, w.FireIndex.Value, 3.6)
+	if fireIndex, ok := w.FireIndex.GetValue(); ok {
+		assert.EqualValues(t, 3.6, fireIndex)
 	}
 
 	expSunrise, err := time.Parse(time.RFC3339, "2020-04-12T12:34:56.789Z")
 	require.NoError(t, err)
-	if assert.NotNil(t, w.Sunrise) {
-		assert.WithinDuration(t, expSunrise, w.Sunrise.Value, time.Second)
+	if sunrise, ok := w.Sunrise.GetValue(); assert.True(t, ok) {
+		assert.WithinDuration(t, expSunrise, sunrise, time.Second)
 	}
 	expSunset, err := time.Parse(time.RFC3339, "2020-04-12T23:45:56.789Z")
 	require.NoError(t, err)
-	if assert.NotNil(t, w.Sunset) {
-		assert.WithinDuration(t, expSunset, w.Sunset.Value, time.Second)
+	if sunset, ok := w.Sunset.GetValue(); assert.True(t, ok) {
+		assert.WithinDuration(t, expSunset, sunset, time.Second)
 	}
 
-	if assert.NotNil(t, w.MoonPhase) {
-		assert.EqualValues(t, w.MoonPhase.Value, "waning_gibbous")
+	if moonPhase, ok := w.MoonPhase.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "waning_gibbous", moonPhase)
 	}
-	if assert.NotNil(t, w.WeatherCode) {
-		assert.EqualValues(t, w.WeatherCode.Value, "mostly_clear")
+	if weatherCode, ok := w.WeatherCode.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "mostly_clear", weatherCode)
 	}
-	if assert.NotNil(t, w.EpaAQI) {
-		assert.EqualValues(t, w.EpaAQI.Value, 25)
+	if epaAQI, ok := w.EpaAQI.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 25, epaAQI)
 	}
-	if assert.NotNil(t, w.EPAPrimaryPollutant) {
-		assert.EqualValues(t, w.EPAPrimaryPollutant.Value, "pm25")
+	if epaPrimaryPollutant, ok := w.EPAPrimaryPollutant.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "pm25", epaPrimaryPollutant)
 	}
-	if assert.NotNil(t, w.EPAHealthConcern) {
-		assert.EqualValues(t, w.EPAHealthConcern.Value, "Good")
+	if epaHealthConcern, ok := w.EPAHealthConcern.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "Good", epaHealthConcern)
 	}
-	if assert.NotNil(t, w.ChinaAQI) {
-		assert.EqualValues(t, w.ChinaAQI.Value, 12)
+	if chinaAQI, ok := w.ChinaAQI.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 12, chinaAQI)
 	}
-	if assert.NotNil(t, w.ChinaPrimaryPollutant) {
-		assert.EqualValues(t, w.ChinaPrimaryPollutant.Value, "pm25")
+	if chinaPrimaryPollutant, ok := w.ChinaPrimaryPollutant.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "pm25", chinaPrimaryPollutant)
 	}
-	if assert.NotNil(t, w.ChinaHealthConcern) {
-		assert.EqualValues(t, w.ChinaHealthConcern.Value, "Good")
+	if chinaHealthConcern, ok := w.ChinaHealthConcern.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "Good", chinaHealthConcern)
 	}
-	if assert.NotNil(t, w.PMTwoPointFive) {
-		assert.EqualValues(t, w.PMTwoPointFive.Value, 10)
+	if pmTwoPointFive, ok := w.PMTwoPointFive.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 10, pmTwoPointFive)
 	}
-	if assert.NotNil(t, w.PMTen) {
-		assert.EqualValues(t, w.PMTen.Value, 15)
+	if pmTen, ok := w.PMTen.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 15, pmTen)
 	}
-	if assert.NotNil(t, w.O3) {
-		assert.EqualValues(t, w.O3.Value, 8)
+	if o3, ok := w.O3.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 8, o3)
 	}
-	if assert.NotNil(t, w.NO2) {
-		assert.EqualValues(t, w.NO2.Value, 40)
+	if no2, ok := w.NO2.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 40, no2)
 	}
-	if assert.NotNil(t, w.CO) {
-		assert.EqualValues(t, w.CO.Value, 3)
+	if co, ok := w.CO.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 3, co)
 	}
-	if assert.NotNil(t, w.SO2) {
-		assert.EqualValues(t, w.SO2.Value, 1)
+	if so2, ok := w.SO2.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 1, so2)
 	}
 }
 
@@ -176,14 +176,13 @@ var minimalWeatherData = []byte(`
 {
   "lat":              91.128,
   "lon":              -181.250,
-  "temp":             {"value": 10, "units": "C"},
   "observation_time": {"value": "2020-04-12T12:00:00.000Z"}
 }`)
 
-// TestDeserializeWeatherWithAllFields validates that if we try to deserialize
-// a Weather sample with almost all fields non-null, the deserialization
-// succeeds, with nil values for all fields that were absent.
-func TestDeserializeWeatherWithAlmostAllFieldsAbsent(t *testing.T) {
+// TestDeserializeWeatherWithAllFieldsAbsent validates that if we try to
+// deserialize a Weather sample with all nullable fields absent, the
+// deserialization succeeds, with nil values for any absent fields.
+func TestDeserializeWeatherWithAllFieldsAbsent(t *testing.T) {
 	var w Weather
 	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
 
@@ -191,14 +190,11 @@ func TestDeserializeWeatherWithAlmostAllFieldsAbsent(t *testing.T) {
 	assert.Equal(t, -181.250, w.Lon)
 	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
 	require.NoError(t, err)
-	if assert.NotNil(t, w.ObservationTime) {
-		assert.WithinDuration(t, expObservationTime, w.ObservationTime.Value, time.Second)
+	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
+		assert.WithinDuration(t, expObservationTime, tm, time.Second)
 	}
 
-	if assert.NotNil(t, w.Temp) {
-		assert.EqualValues(t, w.Temp.Value, 10)
-	}
-
+	assert.Nil(t, w.Temp)
 	assert.Nil(t, w.FeelsLike)
 	assert.Nil(t, w.DewPoint)
 	assert.Nil(t, w.WindSpeed)
@@ -230,4 +226,128 @@ func TestDeserializeWeatherWithAlmostAllFieldsAbsent(t *testing.T) {
 	assert.Nil(t, w.NO2)
 	assert.Nil(t, w.CO)
 	assert.Nil(t, w.SO2)
+}
+
+// not real weather data (which is why the sample is from the geographically
+// impossible coordinates 91 degrees north and 181 degrees west), but the same
+// format as a real API response
+var everyWeatherFieldNull = []byte(`
+{
+  "lat":                         91.128,
+  "lon":                         -181.250,
+  "temp":                        {"value": null, "units": "C"},
+  "feels_like":                  {"value": null, "units": "C"},
+  "dewpoint":                    {"value": null, "units": "C"},
+  "wind_speed":                  {"value": null, "units": "beaufort"},
+  "wind_gust":                   {"value": null, "units": "beaufort"},
+  "baro_pressure":               {"value": null, "units": "inHg"},
+  "visibility":                  {"value": null, "units": "mi"},
+  "humidity":                    {"value": null, "units": "%"},
+  "wind_direction":              {"value": null, "units": "degrees"},
+  "precipitation":               {"value": null, "units": "mm/hr"},
+  "precipitation_type":          {"value": null},
+  "cloud_cover":                 {"value": null, "units": "%"},
+  "cloud_ceiling":               {"value": null, "units": "ft"},
+  "cloud_base":                  {"value": null, "units": "ft"},
+  "surface_shortwave_radiation": {"value": null, "units": "w/sqm"},
+  "fire_index":                  {"value": null},
+  "sunrise":                     {"value": null},
+  "sunset":                      {"value": null},
+  "moon_phase":                  {"value": null},
+  "weather_code":                {"value": null},
+  "epa_aqi":                     {"value": null},
+  "epa_primary_pollutant":       {"value": null},
+  "china_aqi":                   {"value": null},
+  "china_primary_pollutant":     {"value": null},
+  "pm25":                        {"value": null, "units": "µg/m3"},
+  "pm10":                        {"value": null, "units": "µg/m3"},
+  "o3":                          {"value": null, "units": "ppb"},
+  "no2":                         {"value": null, "units": "ppb"},
+  "co":                          {"value": null, "units": "ppm"},
+  "so2":                         {"value": null, "units": "ppb"},
+  "epa_health_concern":          {"value": null},
+  "china_health_concern":        {"value": null},
+  "observation_time":            {"value": "2020-04-12T12:00:00.000Z"}
+}`)
+
+// TestDeserializeWeatherWithAllFieldsNull validates that if we try to
+// deserialize a Weather sample with almost all nullable fields present but
+// with null values, the deserialization succeeds, and for each field's
+// GetValue method, a false ok value is returned.
+func TestDeserializeWeatherWithAllFieldsNull(t *testing.T) {
+	var w Weather
+	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
+
+	assert.Equal(t, 91.128, w.Lat)
+	assert.Equal(t, -181.250, w.Lon)
+	expObservationTime, err := time.Parse(time.RFC3339, "2020-04-12T12:00:00.000Z")
+	require.NoError(t, err)
+	if tm, ok := w.ObservationTime.GetValue(); assert.True(t, ok) {
+		assert.WithinDuration(t, expObservationTime, tm, time.Second)
+	}
+
+	_, ok := w.Temp.GetValue()
+	assert.False(t, ok, "Temp was present")
+	_, ok = w.FeelsLike.GetValue()
+	assert.False(t, ok, "FeelsLike was present")
+	_, ok = w.DewPoint.GetValue()
+	assert.False(t, ok, "DewPoint was present")
+	_, ok = w.WindSpeed.GetValue()
+	assert.False(t, ok, "WindSpeed was present")
+	_, ok = w.WindGust.GetValue()
+	assert.False(t, ok, "WindGust was present")
+	_, ok = w.BaroPressure.GetValue()
+	assert.False(t, ok, "BaroPressure was present")
+	_, ok = w.Visibility.GetValue()
+	assert.False(t, ok, "Visibility was present")
+	_, ok = w.Humidity.GetValue()
+	assert.False(t, ok, "Humidity was present")
+	_, ok = w.WindDirection.GetValue()
+	assert.False(t, ok, "WindDirection was present")
+	_, ok = w.Precipitation.GetValue()
+	assert.False(t, ok, "Precipitation was present")
+	_, ok = w.PrecipitationType.GetValue()
+	assert.False(t, ok, "PrecipitationType was present")
+	_, ok = w.CloudCover.GetValue()
+	assert.False(t, ok, "CloudCoder was present")
+	_, ok = w.CloudCeiling.GetValue()
+	assert.False(t, ok, "CloudCeiling was present")
+	_, ok = w.CloudBase.GetValue()
+	assert.False(t, ok, "CloudBase was present")
+	_, ok = w.SurfaceShortwaveRadiation.GetValue()
+	assert.False(t, ok, "SurfaceShortwaveRadiation was present")
+	_, ok = w.FireIndex.GetValue()
+	assert.False(t, ok, "FireIndex was present")
+	_, ok = w.Sunrise.GetValue()
+	assert.False(t, ok, "Sumrise was present")
+	_, ok = w.Sunset.GetValue()
+	assert.False(t, ok, "Sunset was present")
+	_, ok = w.MoonPhase.GetValue()
+	assert.False(t, ok, "MoonPhase was present")
+	_, ok = w.WeatherCode.GetValue()
+	assert.False(t, ok, "WeatherCode was present")
+	_, ok = w.EpaAQI.GetValue()
+	assert.False(t, ok, "EpaAQI was present")
+	_, ok = w.EPAPrimaryPollutant.GetValue()
+	assert.False(t, ok, "EPAPrimaryPollutant was present")
+	_, ok = w.EPAHealthConcern.GetValue()
+	assert.False(t, ok, "EPAHealthConcern was present")
+	_, ok = w.ChinaAQI.GetValue()
+	assert.False(t, ok, "ChinaAQI was present")
+	_, ok = w.ChinaPrimaryPollutant.GetValue()
+	assert.False(t, ok, "ChinaPrimaryPollutant was present")
+	_, ok = w.ChinaHealthConcern.GetValue()
+	assert.False(t, ok, "ChinaHealthConcern was present")
+	_, ok = w.PMTwoPointFive.GetValue()
+	assert.False(t, ok, "PMTwoPointFive was present")
+	_, ok = w.PMTen.GetValue()
+	assert.False(t, ok, "PMTen was present")
+	_, ok = w.O3.GetValue()
+	assert.False(t, ok, "O3 was present")
+	_, ok = w.NO2.GetValue()
+	assert.False(t, ok, "NO2 was present")
+	_, ok = w.CO.GetValue()
+	assert.False(t, ok, "CO was present")
+	_, ok = w.SO2.GetValue()
+	assert.False(t, ok, "SO2 was present")
 }

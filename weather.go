@@ -13,6 +13,23 @@ import (
 
 // Weather contains the data for a single weather sample in a location, and is
 // returned from the ClimaCell API's /weather/* endpoints.
+//
+// Any pointer field on this struct will have a nil value if either:
+// - The field was not requested in the API request that this sample was
+//   retrieved through.
+// - Or data was not available for this field's value for the requested time
+//   and location, therefore returning a null value for the field in the API
+//   response.
+//
+// For convenience, TimeValue, FloatValue, IntValue, and StringValue structs
+// all have GetValue methods so that you can check for data without checking
+// whether two pointer values are non-nil, like this:
+//
+// temp, ok := w.Temp.GetValue()
+// if !ok {
+// 	/* handle a temp value being absent for this */
+// }
+// /* work with the retrieved temp value */
 type Weather struct {
 	// The latitude coordinate for this weather sample.
 	Lat float64 `json:"lat"`
@@ -120,34 +137,72 @@ type Weather struct {
 // of type string.
 type StringValue struct {
 	// Value indicates the string value for this field on a Weather.
-	Value string `json:"value"`
+	Value *string `json:"value"`
+}
+
+// GetValue returns this  struct's value and a true "ok" if present, or returns
+// a blank string and false "ok" if either this StringValue is nil, or its
+// Value is nil.
+func (s *StringValue) GetValue() (val string, ok bool) {
+	if s == nil || s.Value == nil {
+		return "", false
+	}
+	return *s.Value, true
 }
 
 // FloatValue is a field on a Weather returned from the ClimaCell API that is a
 // floating-point number.
 type FloatValue struct {
 	// Value indicates the float value for this field on a Weather.
-	Value float64 `json:"value"`
+	Value *float64 `json:"value"`
 	// Units, if present, indicates the unit of measure for this value.
 	Units string `json:"units,omitempty"`
+}
+
+// GetValue returns this struct's value and a true "ok" if present, or returns
+// 0.0 and false "ok" if either this FloatValue is nil, or its Value is nil.
+func (f *FloatValue) GetValue() (val float64, ok bool) {
+	if f == nil || f.Value == nil {
+		return 0.0, false
+	}
+	return *f.Value, true
 }
 
 // IntValue is a field on a Weather returned from the ClimaCell API that is an
 // integer.
 type IntValue struct {
 	// Value indicates the integer value for this field on a Weather.
-	Value int `json:"value"`
+	Value *int `json:"value"`
 	// Units, if present, indicates the unit of measure for this value.
 	Units string `json:"units,omitempty"`
+}
+
+// GetValue returns this struct's value and a true "ok" if present, or returns
+// 0 and false "ok" if either this IntValue is nil, or its Value is nil.
+func (i *IntValue) GetValue() (val int, ok bool) {
+	if i == nil || i.Value == nil {
+		return 0, false
+	}
+	return *i.Value, true
 }
 
 // TimeValue is a field on a Weather returned from the ClimaCell API that is a
 // timestamp.
 type TimeValue struct {
 	// Value indicates the timestamp value for this field on a Weather.
-	Value time.Time `json:"value"`
+	Value *time.Time `json:"value"`
 	// Units, if present, indicates the unit of measure for this value.
 	Units string `json:"units,omitempty"`
+}
+
+// GetValue returns this struct's value and a true "ok" if present, or returns
+// a blank string and false "ok" if either this TimeValue is nil, or its Value
+// is nil.
+func (t *TimeValue) GetValue() (val time.Time, ok bool) {
+	if t == nil || t.Value == nil {
+		return time.Time{}, false
+	}
+	return *t.Value, true
 }
 
 //
@@ -228,6 +283,39 @@ type FloatAtTimeValue struct {
 	ObservationTime time.Time
 	// The value at this observation time.
 	Value *FloatValue
+}
+
+// [TODO] Figure out if it is possible at all for the API to return a nil
+// FloatAtTimeValue.Value, or nil FloatAtTimeValue.Value.Value, for example
+// {"observation_time": "2020-04-12T13:49:22.316Z", "value": null}, or
+// {
+//   "observation_time": "2020-04-12T13:49:22.316Z",
+//   "value": {"units": "F", "value": null}
+// }.
+//
+// I doubt that would be the case, though; since a high or low measurement for
+// a piece of weather data from a daily forecast includes a timestamp, I don't
+// think we would know when the predicted high or low is for the day without
+// knowing that high or low value.
+
+// GetValue returns this FloatAtTimeValue's float value and a true "ok" if
+// present, or returns 0.0 and false "ok" if either this FloatAtTimeValue is
+// nil, its Value field is nil, or its underlying Value is nil.
+func (f *FloatAtTimeValue) GetValue() (val float64, ok bool) {
+	if f == nil || f.Value == nil || f.Value.Value == nil {
+		return 0.0, false
+	}
+	return *f.Value.Value, true
+}
+
+// GetUnits returns this struct's float value and a true "ok" if present, or
+// returns an empty string and false "ok" if either this FloatAtTimeValue is
+// nil, or its Value is nil.
+func (f *FloatAtTimeValue) GetUnits() (units string, ok bool) {
+	if f == nil || f.Value == nil {
+		return "", false
+	}
+	return f.Value.Units, true
 }
 
 // ForecastMinAndMax contains the minimum and maximum values for a type of

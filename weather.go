@@ -348,8 +348,8 @@ type LatLon struct {
 // LocationQueryParams implements the Location interface.
 func (l LatLon) LocationQueryParams() url.Values {
 	return url.Values{
-		"lat": []string{strconv.FormatFloat(l.Lat, 'E', -1, 64)},
-		"lon": []string{strconv.FormatFloat(l.Lon, 'E', -1, 64)},
+		"lat": []string{strconv.FormatFloat(l.Lat, 'f', -1, 64)},
+		"lon": []string{strconv.FormatFloat(l.Lon, 'f', -1, 64)},
 	}
 }
 

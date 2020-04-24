@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-//
+type BaseResponseType struct {
+	LatLon
+	LocationId LocationID `json:"location_id"`
+	// The time when this weather sample is from.
+	ObservationTime DateValue `json:"observation_time"`
+}
+
 // Weather struct and related values
 //
 
@@ -31,13 +37,7 @@ import (
 // 	/* handle a temp value being absent */
 // }
 // /* work with the retrieved temp value */
-type Weather struct {
-	// The latitude coordinate for this weather sample.
-	Lat float64 `json:"lat"`
-	// The longitude coordinate for this weather sample.
-	Lon float64 `json:"lon"`
-	// The time when this weather sample is from.
-	ObservationTime DateValue `json:"observation_time"`
+type WeatherType struct {
 	// The temperature for this weather sample.
 	Temp *FloatValue `json:"temp,omitempty"`
 	// The temperature it feels like for this weather sample, based on wind
@@ -92,20 +92,9 @@ type Weather struct {
 	// "fog_light", "fog", "cloudy", "mostly_cloudy", "partly_cloudy",
 	// "mostly_clear", and "clear".
 	WeatherCode *StringValue `json:"weather_code"`
-	// The level of risk of fires for this weather sample, from a scale of
-	// 1-100, based on conditions that play a major role in fires.
-	FireIndex *FloatValue `json:"fire_index"`
-	// The road condition for this weather sample, only available for
-	// weather samples in US locations. Possible values include
-	// "low_risk", "moderate_risk", "mod_hi_risk", "high_risk", and
-	// "extreme_risk".
-	RoadRisk *StringValue `json:"road_risk"`
-	// ClimaCell road risk (EU-only)
-	RoadRiskScore *StringValue `json:"road_risk_score"`
-	// An integer between 1 and 100 that is indicative of the level of confidence of road risk prediction (EU-only)
-	RoadRiskConfidence *IntValue `json:"road_risk_confidence"`
-	// Main weather conditions that are impacting the road risk score (EU-only)
-	RoadRiskConditions *StringValue `json:"road_risk_conditions"`
+}
+
+type AirQualityType struct {
 	// Amount of particulate matter smaller than 2.5 micrometers for this
 	// weather sample.
 	PMTwoPointFive *FloatValue `json:"pm25"`
@@ -138,6 +127,63 @@ type Weather struct {
 	// Health concern for this weather sample per China Ministry of Ecology
 	// and Environment standard.
 	ChinaHealthConcern *StringValue `json:"china_health_concern"`
+}
+
+type FireIndexType struct {
+	// The level of risk of fires for this weather sample, from a scale of
+	// 1-100, based on conditions that play a major role in fires.
+	FireIndex *FloatValue `json:"fire_index"`
+}
+
+type RoadRiskType struct {
+	// The road condition for this weather sample, only available for
+	// weather samples in US locations. Possible values include
+	// "low_risk", "moderate_risk", "mod_hi_risk", "high_risk", and
+	// "extreme_risk".
+	RoadRisk *StringValue `json:"road_risk"`
+	// ClimaCell road risk (EU-only)
+	RoadRiskScore *StringValue `json:"road_risk_score"`
+	// An integer between 1 and 100 that is indicative of the level of confidence of road risk prediction (EU-only)
+	RoadRiskConfidence *IntValue `json:"road_risk_confidence"`
+	// Main weather conditions that are impacting the road risk score (EU-only)
+	RoadRiskConditions *StringValue `json:"road_risk_conditions"`
+}
+
+type NowCastForecast struct {
+	BaseResponseType
+	WeatherType
+	AirQualityType
+	RoadRiskType
+	FireIndexType
+}
+
+type HourlyForecast struct {
+	BaseResponseType
+	WeatherType
+	AirQualityType
+	RoadRiskType
+	FireIndexType
+}
+
+type RealTime struct {
+	BaseResponseType
+	WeatherType
+	AirQualityType
+	RoadRiskType
+	FireIndexType
+}
+
+type HistoricalClimaCell struct {
+	BaseResponseType
+	WeatherType
+	AirQualityType
+	RoadRiskType
+	FireIndexType
+}
+
+type HistoricalStation struct {
+	BaseResponseType
+	WeatherType
 }
 
 // [TODO] If it can be determined that enum values like moon phase and
@@ -286,7 +332,8 @@ type ForecastArgs struct {
 	// parameter.
 	Start time.Time
 	// End, if nonzero, indicates the end of the time range we are
-	// requesting weather data for, filling in the "end_time" query
+	// requesting we
+	//ther data for, filling in the "end_time" query
 	// parameter.
 	End time.Time
 	// Timestep, if nonzero, indicates the timestep in minutes for the
@@ -346,9 +393,9 @@ type Location interface {
 // coordinates.
 type LatLon struct {
 	// Latitude coordinate
-	Lat float64
+	Lat float64 `json:"lat"`
 	// Longitude coordinate
-	Lon float64
+	Lon float64 `json:"lon"`
 }
 
 // LocationQueryParams implements the Location interface.

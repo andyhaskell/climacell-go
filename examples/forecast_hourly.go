@@ -1,4 +1,4 @@
-package examples
+package main
 
 import (
 	"github.com/andyhaskell/climacell-go"

@@ -58,7 +58,7 @@ var everyWeatherField = []byte(`
 // TestDeserializeWeatherWithAllFields validates that if we try to deserialize
 // a Weather sample with all fields non-null, the deserialization succeeds.
 func TestDeserializeWeatherWithAllFields(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(everyWeatherField, &w))
 
 	assert.Equal(t, 91.128, w.Lat)
@@ -199,7 +199,7 @@ var minimalWeatherData = []byte(`
 // deserialize a Weather sample with all nullable fields absent, the
 // deserialization succeeds, with nil values for any absent fields.
 func TestDeserializeWeatherWithAllFieldsAbsent(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
 
 	assert.Equal(t, 91.128, w.Lat)
@@ -297,7 +297,7 @@ var everyWeatherFieldNull = []byte(`
 // with null values, the deserialization succeeds, and for each field's
 // GetValue method, a false ok value is returned.
 func TestDeserializeWeatherWithAllFieldsNull(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
 
 	assert.Equal(t, 91.128, w.Lat)

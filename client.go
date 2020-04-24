@@ -100,7 +100,7 @@ func (c *Client) HourlyForecast(args ForecastArgs) ([]Weather, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) DailyForecast(loc Location, args ForecastArgs) ([]ForecastDay, error) {
+func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 	var f []ForecastDay
 	if err := c.getWeatherSamples("weather/forecast/daily", args, &f); err != nil {
 		return nil, err

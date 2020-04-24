@@ -100,6 +100,12 @@ type Weather struct {
 	// "low_risk", "moderate_risk", "mod_hi_risk", "high_risk", and
 	// "extreme_risk".
 	RoadRisk *StringValue `json:"road_risk"`
+	// ClimaCell road risk (EU-only)
+	RoadRiskScore *StringValue `json:"road_risk_score"`
+	// An integer between 1 and 100 that is indicative of the level of confidence of road risk prediction (EU-only)
+	RoadRiskConfidence *IntValue `json:"road_risk_confidence"`
+	// Main weather conditions that are impacting the road risk score (EU-only)
+	RoadRiskConditions *StringValue `json:"road_risk_conditions"`
 	// Amount of particulate matter smaller than 2.5 micrometers for this
 	// weather sample.
 	PMTwoPointFive *FloatValue `json:"pm25"`
@@ -115,7 +121,7 @@ type Weather struct {
 	// Amount of sulfur dioxide in the air for this weather sample.
 	SO2 *FloatValue `json:"so2"`
 	// Air quality index for this weather sample per United States
-	// Environmental Protection Agency standard.
+	// Environmen	tal Protection Agency standard.
 	EpaAQI *IntValue `json:"epa_aqi"`
 	// Primary pollutant in the air for this weather sample per United
 	// States Environmental Protection Agency standard.
@@ -136,7 +142,7 @@ type Weather struct {
 
 // [TODO] If it can be determined that enum values like moon phase and
 // precipitaiton type don't change their deserialization without the version
-// number also being bumped up, it would be nice to have enums for these values
+// number also being bumped up," it would be nice to have enums for these values
 // instead of using StringValues.
 
 // StringValue is a field on a Weather returned from the ClimaCell API that is

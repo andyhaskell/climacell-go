@@ -121,7 +121,7 @@ type Weather struct {
 	// Amount of sulfur dioxide in the air for this weather sample.
 	SO2 *FloatValue `json:"so2"`
 	// Air quality index for this weather sample per United States
-	// Environmen	tal Protection Agency standard.
+	// Environmental Protection Agency standard.
 	EpaAQI *IntValue `json:"epa_aqi"`
 	// Primary pollutant in the air for this weather sample per United
 	// States Environmental Protection Agency standard.

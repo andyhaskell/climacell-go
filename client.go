@@ -44,7 +44,7 @@ func New(apiKey string) *Client { return NewWithClient(apiKey, newDefaultHTTPCli
 // this, it is ill-advised to have the key directly in your source code.
 func NewWithClient(apiKey string, c *http.Client) *Client {
 	return &Client{
-		baseURL: "https://api.climacell.co/v3/",
+		baseURL: "https://api.test.climacell.co/v3/",
 		apiKey:  apiKey,
 		c:       c,
 	}
@@ -108,8 +108,8 @@ func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 	return f, nil
 }
 
-// DailyForecast returns an hourly forecast on successful requests to the
-// /weather/forecast/daily endpoint, returning a slice of Weather samples on a
+// HistoricalStation returns an hourly forecast on successful requests to the
+// /weather/historical/station endpoint, returning a slice of Weather samples on a
 // 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
 // able to request hourly forecast data up to 15 days out.
 //
@@ -118,8 +118,8 @@ func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) HistoricalStation(args ForecastArgs) ([]ForecastDay, error) {
-	var f []ForecastDay
+func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, error) {
+	var f []HistoricalStation
 	if err := c.getWeatherSamples("weather/historical/station", args, &f); err != nil {
 		return nil, err
 	}

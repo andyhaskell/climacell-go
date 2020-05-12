@@ -28,7 +28,7 @@ func hourlyForecastHandler() http.Handler {
 						Value: time.Now(),
 					},
 				},
-				WeatherType:    WeatherType{
+				WeatherType: WeatherType{
 					Temp: &FloatValue{
 						Value: &temp,
 					},
@@ -47,12 +47,33 @@ func hourlyForecastHandler() http.Handler {
 	return http.HandlerFunc(fn)
 }
 
+func historicalStationHandler() http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var temp = 15.10
+		data := []HistoricalStation{
+			{
+				WeatherType: WeatherType{
+					Temp: &FloatValue{
+						Value: &temp,
+					}},
+			},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		err := json.NewEncoder(w).Encode(data)
+		if err != nil {
+			log.Printf("error")
+		}
+	}
+	return http.HandlerFunc(fn)
+}
+
 func serverMock() *httptest.Server {
 	mux := http.NewServeMux()
-	const addr = "http://localhost:12345"
-	log.Printf("Now listening on %s...\n", addr)
 	mux.Handle("/weather/forecast/hourly", hourlyForecastHandler())
+	mux.Handle("/weather/historical/station", historicalStationHandler())
 	server := httptest.NewServer(mux)
+	log.Printf("Test server listening on %s...\n", server.URL)
 	return server
 }
 
@@ -63,7 +84,7 @@ func TestHourlyForecastEndpoint(t *testing.T) {
 	client := New("test_api_key")
 	client.baseURL = server.URL
 
-	forecast, _ := client.HourlyForecast(ForecastArgs{
+	forecast, err := client.HourlyForecast(ForecastArgs{
 		Location: LatLon{
 			Lat: 11.3,
 			Lon: 52.4,
@@ -75,7 +96,41 @@ func TestHourlyForecastEndpoint(t *testing.T) {
 		Fields:     nil,
 	})
 
+	if err != nil {
+		t.Errorf("Hourly forecast returned an unexpected error: %v", err)
+	}
+
 	value, _ := forecast[0].Temp.GetValue()
+	expectedTemp := 15.10
+	if expectedTemp != value {
+		t.Errorf("Did not get expected result. Wanted %f, got: %f\n", expectedTemp, value)
+	}
+}
+
+func TestHistoricalStationEndpoint(t *testing.T) {
+	server := serverMock()
+	defer server.Close()
+
+	client := New("test_api_key")
+	client.baseURL = server.URL
+
+	historical, err := client.HistoricalStation(ForecastArgs{
+		Location: LatLon{
+			Lat: 11.3,
+			Lon: 52.4,
+		},
+		Start:      time.Time{},
+		End:        time.Time{},
+		Timestep:   0,
+		UnitSystem: "",
+		Fields:     nil,
+	})
+
+	if err != nil {
+		t.Errorf("Hourly forecast returned an unexpected error: %v", err)
+	}
+
+	value, _ := historical[0].Temp.GetValue()
 	expectedTemp := 15.10
 	if expectedTemp != value {
 		t.Errorf("Did not get expected result. Wanted %f, got: %f\n", expectedTemp, value)

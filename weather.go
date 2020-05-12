@@ -137,15 +137,15 @@ type FireIndexType struct {
 
 type RoadRiskType struct {
 	// The road condition for this weather sample, only available for
-	// weather samples in US locations. Possible values include
+	// weather samples in EU and US locations. Possible values include
 	// "low_risk", "moderate_risk", "mod_hi_risk", "high_risk", and
 	// "extreme_risk".
 	RoadRisk *StringValue `json:"road_risk"`
-	// ClimaCell road risk (EU-only)
+	// ClimaCell road risk (EU and US only)
 	RoadRiskScore *StringValue `json:"road_risk_score"`
-	// An integer between 1 and 100 that is indicative of the level of confidence of road risk prediction (EU-only)
+	// An integer between 1 and 100 that is indicative of the level of confidence of road risk prediction (EU and US only)
 	RoadRiskConfidence *IntValue `json:"road_risk_confidence"`
-	// Main weather conditions that are impacting the road risk score (EU-only)
+	// Main weather conditions that are impacting the road risk score (EU and US only)
 	RoadRiskConditions *StringValue `json:"road_risk_conditions"`
 }
 
@@ -182,13 +182,12 @@ type HistoricalClimaCell struct {
 }
 
 type HistoricalStation struct {
-	BaseResponseType
 	WeatherType
 }
 
 // [TODO] If it can be determined that enum values like moon phase and
 // precipitaiton type don't change their deserialization without the version
-// number also being bumped up," it would be nice to have enums for these values
+// number also being bumped up, it would be nice to have enums for these values
 // instead of using StringValues.
 
 // StringValue is a field on a Weather returned from the ClimaCell API that is
@@ -328,13 +327,10 @@ type ForecastArgs struct {
 	// any request for forecast data will error with a 400.
 	Location Location
 	// Start, if nonzero, indicates the start of the time range we are
-	// requesting weather data for, filling in the "start_time" query
-	// parameter.
+	// requesting weather data for, filling in the "start_time" query parameter.
 	Start time.Time
 	// End, if nonzero, indicates the end of the time range we are
-	// requesting we
-	//ther data for, filling in the "end_time" query
-	// parameter.
+	// requesting data for, filling in the "end_time" query parameter.
 	End time.Time
 	// Timestep, if nonzero, indicates the timestep in minutes for the
 	// weather samples we are requesting by filling the "timestep" query

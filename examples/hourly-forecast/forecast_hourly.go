@@ -24,7 +24,12 @@ func main() {
 	}
 
 	for _, w := range weatherSamples {
-		log.Printf("The temperature at %s is %f degrees %s\n",
-			w.ObservationTime.Value, *w.Temp.Value, w.Temp.Units)
+		temp, ok := w.Temp.GetValue()
+		if ok {
+			log.Printf("The temperature at %s is %f degrees %s",
+				w.ObservationTime.Value, temp, w.Temp.Units)
+		} else {
+			log.Printf("The temperature at %s is unavailable", w.ObservationTime.Value)
+		}
 	}
 }

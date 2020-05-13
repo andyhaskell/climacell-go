@@ -44,7 +44,7 @@ func New(apiKey string) *Client { return NewWithClient(apiKey, newDefaultHTTPCli
 // this, it is ill-advised to have the key directly in your source code.
 func NewWithClient(apiKey string, c *http.Client) *Client {
 	return &Client{
-		baseURL: "https://api.test.climacell.co/v3/",
+		baseURL: "https://api.climacell.co/v3/",
 		apiKey:  apiKey,
 		c:       c,
 	}

@@ -182,6 +182,7 @@ type HistoricalClimaCell struct {
 }
 
 type HistoricalStation struct {
+	BaseResponseType
 	WeatherType
 }
 

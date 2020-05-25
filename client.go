@@ -64,8 +64,8 @@ func NewWithClient(apiKey string, c *http.Client) *Client {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) Nowcast(args ForecastArgs) ([]Weather, error) {
-	var w []Weather
+func (c *Client) Nowcast(args ForecastArgs) ([]NowCastForecast, error) {
+	var w []NowCastForecast
 	if err := c.getWeatherSamples("weather/nowcast", args, &w); err != nil {
 		return nil, err
 	}
@@ -82,8 +82,8 @@ func (c *Client) Nowcast(args ForecastArgs) ([]Weather, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) HourlyForecast(args ForecastArgs) ([]Weather, error) {
-	var w []Weather
+func (c *Client) HourlyForecast(args ForecastArgs) ([]HourlyForecast, error) {
+	var w []HourlyForecast
 	if err := c.getWeatherSamples("weather/forecast/hourly", args, &w); err != nil {
 		return nil, err
 	}
@@ -100,9 +100,27 @@ func (c *Client) HourlyForecast(args ForecastArgs) ([]Weather, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) DailyForecast(loc Location, args ForecastArgs) ([]ForecastDay, error) {
+func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 	var f []ForecastDay
 	if err := c.getWeatherSamples("weather/forecast/daily", args, &f); err != nil {
+		return nil, err
+	}
+	return f, nil
+}
+
+// HistoricalStation returns an hourly forecast on successful requests to the
+// /weather/historical/station endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request hourly forecast data up to 15 days out.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, error) {
+	var f []HistoricalStation
+	if err := c.getWeatherSamples("weather/historical/station", args, &f); err != nil {
 		return nil, err
 	}
 	return f, nil

@@ -36,6 +36,10 @@ var everyWeatherField = []byte(`
   "sunset":                      {"value": "2020-04-12T23:45:56.789Z"},
   "moon_phase":                  {"value": "waning_gibbous"},
   "weather_code":                {"value": "mostly_clear"},
+  "road_risk":                   {"value": "low_risk"},
+  "road_risk_score":             {"value": "Low Risk"},
+  "road_risk_confidence":        {"value": 100 },
+  "road_risk_conditions":        {"value": "Low visibility"},
   "epa_aqi":                     {"value": 25},
   "epa_primary_pollutant":       {"value": "pm25"},
   "china_aqi":                   {"value": 12},
@@ -54,7 +58,7 @@ var everyWeatherField = []byte(`
 // TestDeserializeWeatherWithAllFields validates that if we try to deserialize
 // a Weather sample with all fields non-null, the deserialization succeeds.
 func TestDeserializeWeatherWithAllFields(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(everyWeatherField, &w))
 
 	assert.Equal(t, 91.128, w.Lat)
@@ -129,6 +133,20 @@ func TestDeserializeWeatherWithAllFields(t *testing.T) {
 	if weatherCode, ok := w.WeatherCode.GetValue(); assert.True(t, ok) {
 		assert.EqualValues(t, "mostly_clear", weatherCode)
 	}
+
+	if roadRisk, ok := w.RoadRisk.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "low_risk", roadRisk)
+	}
+	if roadRiskScore, ok := w.RoadRiskScore.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "Low Risk", roadRiskScore)
+	}
+	if roadRiskConfidence, ok := w.RoadRiskConfidence.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, 100, roadRiskConfidence)
+	}
+	if roadRiskConditions, ok := w.RoadRiskConditions.GetValue(); assert.True(t, ok) {
+		assert.EqualValues(t, "Low visibility", roadRiskConditions)
+	}
+
 	if epaAQI, ok := w.EpaAQI.GetValue(); assert.True(t, ok) {
 		assert.EqualValues(t, 25, epaAQI)
 	}
@@ -181,7 +199,7 @@ var minimalWeatherData = []byte(`
 // deserialize a Weather sample with all nullable fields absent, the
 // deserialization succeeds, with nil values for any absent fields.
 func TestDeserializeWeatherWithAllFieldsAbsent(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
 
 	assert.Equal(t, 91.128, w.Lat)
@@ -210,6 +228,10 @@ func TestDeserializeWeatherWithAllFieldsAbsent(t *testing.T) {
 	assert.Nil(t, w.Sunset)
 	assert.Nil(t, w.MoonPhase)
 	assert.Nil(t, w.WeatherCode)
+	assert.Nil(t, w.RoadRisk)
+	assert.Nil(t, w.RoadRiskScore)
+	assert.Nil(t, w.RoadRiskConfidence)
+	assert.Nil(t, w.RoadRiskConditions)
 	assert.Nil(t, w.EpaAQI)
 	assert.Nil(t, w.EPAPrimaryPollutant)
 	assert.Nil(t, w.EPAHealthConcern)
@@ -251,6 +273,10 @@ var everyWeatherFieldNull = []byte(`
   "sunset":                      {"value": null},
   "moon_phase":                  {"value": null},
   "weather_code":                {"value": null},
+  "road_risk":                   {"value": null},
+  "road_risk_score":             {"value": null},
+  "road_risk_confidence":        {"value": null},
+  "road_risk_conditions":        {"value": null},
   "epa_aqi":                     {"value": null},
   "epa_primary_pollutant":       {"value": null},
   "china_aqi":                   {"value": null},
@@ -271,7 +297,7 @@ var everyWeatherFieldNull = []byte(`
 // with null values, the deserialization succeeds, and for each field's
 // GetValue method, a false ok value is returned.
 func TestDeserializeWeatherWithAllFieldsNull(t *testing.T) {
-	var w Weather
+	var w HourlyForecast
 	require.NoError(t, json.Unmarshal(minimalWeatherData, &w))
 
 	assert.Equal(t, 91.128, w.Lat)
@@ -320,6 +346,14 @@ func TestDeserializeWeatherWithAllFieldsNull(t *testing.T) {
 	assert.False(t, ok, "MoonPhase was present")
 	_, ok = w.WeatherCode.GetValue()
 	assert.False(t, ok, "WeatherCode was present")
+	_, ok = w.RoadRisk.GetValue()
+	assert.False(t, ok, "road risk was present")
+	_, ok = w.RoadRiskScore.GetValue()
+	assert.False(t, ok, "road risk score was present")
+	_, ok = w.RoadRiskConfidence.GetValue()
+	assert.False(t, ok, "road risk confidence was present")
+	_, ok = w.RoadRiskConditions.GetValue()
+	assert.False(t, ok, "road risk conditions was present")
 	_, ok = w.EpaAQI.GetValue()
 	assert.False(t, ok, "EpaAQI was present")
 	_, ok = w.EPAPrimaryPollutant.GetValue()

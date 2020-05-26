@@ -126,6 +126,43 @@ func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, erro
 	return f, nil
 }
 
+// ClimaCellHistorical returns historical weather information on successful requests
+// to the /weather/historical/climacell endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request  data for up to 6 hours in the past.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) ClimaCellHistorical(args ForecastArgs) ([]HistoricalClimaCell, error) {
+	var f []HistoricalClimaCell
+	if err := c.getWeatherSamples("weather/historical/climacell", args, &f); err != nil {
+		return nil, err
+	}
+	return f, nil
+}
+
+// RealTime returns observational data at the present time,
+// down to the minute, on successful requests
+// to the /weather/nowcast endpoint, returning a slice of Weather samples on a
+// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
+// able to request nowcast data for up to 6 hours out.
+//
+// Note that if the error is not due to an eror response, then the error is
+// wrapped in a pkg/errors withMessage to indicate its cause, so to work with
+// the original error, you need to call pkg/errors.Cause(). These errors are
+// things such as errors sending the request to the API, or unexpected errors
+// deserializing responses.
+func (c *Client) RealTime(args ForecastArgs) (RealTime, error) {
+	var f RealTime
+	if err := c.getWeatherSamples("weather/realtime", args, &f); err != nil {
+		return RealTime{}, err
+	}
+	return f, nil
+}
+
 func (c *Client) getWeatherSamples(
 	endpt string,
 	args ForecastArgs,

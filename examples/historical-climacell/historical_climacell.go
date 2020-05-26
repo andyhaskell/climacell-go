@@ -12,7 +12,7 @@ func main() {
 	var c *climacell.Client
 	c = climacell.New(os.Getenv("CLIMACELL_API_KEY"))
 
-	weatherSamples, err := c.ClimaCellHistorical(climacell.ForecastArgs{
+	weatherSamples, err := c.HistoricalClimaCell(climacell.ForecastArgs{
 		Location:   &climacell.LatLon{Lat: 42.3826, Lon: -71.1460},
 		UnitSystem: "si",
 		Fields:     []string{"temp,no2,road_risk,fire_index"},

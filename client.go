@@ -126,7 +126,7 @@ func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, erro
 	return f, nil
 }
 
-// ClimaCellHistorical returns historical weather information on successful requests
+// HistoricalClimaCell returns historical weather information on successful requests
 // to the /weather/historical/climacell endpoint, returning a slice of Weather samples on a
 // 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
 // able to request  data for up to 6 hours in the past.
@@ -136,7 +136,7 @@ func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, erro
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) ClimaCellHistorical(args ForecastArgs) ([]HistoricalClimaCell, error) {
+func (c *Client) HistoricalClimaCell(args ForecastArgs) ([]HistoricalClimaCell, error) {
 	var f []HistoricalClimaCell
 	if err := c.getWeatherSamples("weather/historical/climacell", args, &f); err != nil {
 		return nil, err

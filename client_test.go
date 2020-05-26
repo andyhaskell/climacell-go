@@ -68,7 +68,7 @@ func historicalStationHandler() http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func historicalClimacellHandler() http.Handler {
+func historicalClimaCellHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		m, _ := url.ParseQuery(r.URL.RawQuery)
 		lat, err := strconv.ParseFloat(m["lat"][0], 64)
@@ -145,7 +145,7 @@ func serverMock() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.Handle("/weather/forecast/hourly", hourlyForecastHandler())
 	mux.Handle("/weather/historical/station", historicalStationHandler())
-	mux.Handle("/weather/historical/climacell", historicalClimacellHandler())
+	mux.Handle("/weather/historical/climacell", historicalClimaCellHandler())
 	mux.Handle("/weather/realtime", realTimeHandler())
 	server := httptest.NewServer(mux)
 	log.Printf("Test server listening on %s...\n", server.URL)
@@ -212,14 +212,14 @@ func TestHistoricalStationEndpoint(t *testing.T) {
 	}
 }
 
-func TestClimaCellHistoricalEndpoint(t *testing.T) {
+func TestHistoricalClimaCellEndpoint(t *testing.T) {
 	server := serverMock()
 	defer server.Close()
 
 	client := New("test_api_key")
 	client.baseURL = server.URL
 
-	historical, err := client.ClimaCellHistorical(ForecastArgs{
+	historical, err := client.HistoricalClimaCell(ForecastArgs{
 		Location: LatLon{
 			Lat: 11.3,
 			Lon: 52.4,

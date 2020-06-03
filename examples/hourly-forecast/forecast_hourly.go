@@ -12,11 +12,11 @@ func main() {
 	c = climacell.New(os.Getenv("CLIMACELL_API_KEY"))
 
 	weatherSamples, err := c.HourlyForecast(climacell.ForecastArgs{
-		Location:     &climacell.LatLon{Lat: 42.3826, Lon: -71.146},
+		Location:   &climacell.LatLon{Lat: 42.3826, Lon: -71.146},
 		UnitSystem: "us",
 		Fields:     []string{"temp"},
-		Start:  time.Now(),
-		End:    time.Now().Add(24*time.Hour),
+		Start:      time.Now(),
+		End:        time.Now().Add(24 * time.Hour),
 	})
 
 	if err != nil {

@@ -12,11 +12,11 @@ func main() {
 	c = climacell.New(os.Getenv("CLIMACELL_API_KEY"))
 
 	weatherSamples, err := c.HistoricalStation(climacell.ForecastArgs{
-		Location:     &climacell.LatLon{Lat: 41.9742, Lon: -87.9073},
+		Location:   &climacell.LatLon{Lat: 41.9742, Lon: -87.9073},
 		UnitSystem: "us",
 		Fields:     []string{"temp"},
-		Start:   time.Now().Add(-24*time.Hour),
-		End:    time.Now(),
+		Start:      time.Now().Add(-24 * time.Hour),
+		End:        time.Now(),
 	})
 
 	if err != nil {

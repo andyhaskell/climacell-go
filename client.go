@@ -126,10 +126,10 @@ func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, erro
 	return f, nil
 }
 
-// HistoricalClimaCell returns historical weather information on successful requests
-// to the /weather/historical/climacell endpoint, returning a slice of Weather samples on a
-// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
-// able to request  data for up to 6 hours in the past.
+// HistoricalClimaCell returns past ClimaCell weather information on successful
+// requests to the /weather/historical/climacell endpoint, or an ErrorResponse
+// on a 400, 401, 403, or 500 error. You are able to request data for up to 6
+// hours into the past.
 //
 // Note that if the error is not due to an eror response, then the error is
 // wrapped in a pkg/errors withMessage to indicate its cause, so to work with
@@ -144,11 +144,9 @@ func (c *Client) HistoricalClimaCell(args ForecastArgs) ([]HistoricalClimaCell, 
 	return f, nil
 }
 
-// RealTime returns observational data at the present time,
-// down to the minute, on successful requests
-// to the /weather/nowcast endpoint, returning a slice of Weather samples on a
-// 200 response, or an ErrorResponse on a 400, 401, 403, or 500 error. You are
-// able to request nowcast data for up to 6 hours out.
+// RealTime returns observational data at the present time, down to the minute,
+// on successful requests to the /weather/realtime endpoint, or an
+// ErrorResponse on a 400, 401, 403, or 500 error.
 //
 // Note that if the error is not due to an eror response, then the error is
 // wrapped in a pkg/errors withMessage to indicate its cause, so to work with
